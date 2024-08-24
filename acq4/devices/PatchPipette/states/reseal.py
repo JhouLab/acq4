@@ -191,7 +191,6 @@ class ResealState(PatchPipetteState):
     def nuzzle(self):
         """Wiggle the pipette around inside the cell to clear space for a nucleus to be extracted."""
         self.setState("nuzzling")
-        # TODO move back a little?
 
         @contextlib.contextmanager
         def pressure_ramp():
@@ -208,7 +207,8 @@ class ResealState(PatchPipetteState):
                 duration=self.config['nuzzleDuration'],
                 repetitions=self.config['nuzzleRepetitions'],
                 extra=pressure_ramp,
-            )
+            ),
+            timeout=None,
         )
 
     @future_wrap
