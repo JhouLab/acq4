@@ -176,6 +176,12 @@ class PatchPipetteState(Future):
         """
         self.dev.clampDevice.sigTestPulseFinished.connect(self.testPulseFinished)
 
+    def processAtLeastOneTestPulse(self) -> list[PatchClampTestPulse]:
+        """Wait for at least one test pulse to be processed."""
+        while not (tps := self.getTestPulses(timeout=0.2)):
+            self.checkStop()
+        return tps
+
     def testPulseFinished(self, clamp, result):
         self.testPulseResults.put(result)
 
@@ -253,9 +259,9 @@ class SteadyStateAnalysisBase(object):
         raise NotImplementedError()
 
     @staticmethod
-    def _exponential_decay_avg(dt, prev_avg, resistance, tau):
+    def exponential_decay_avg(dt, prev_avg, value, tau):
         alpha = 1 - np.exp(-dt / tau)
-        avg = prev_avg * (1 - alpha) + resistance * alpha
+        avg = prev_avg * (1 - alpha) + value * alpha
         ratio = np.log10(avg / prev_avg)
         return avg, ratio
 

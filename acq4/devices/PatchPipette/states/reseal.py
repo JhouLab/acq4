@@ -52,9 +52,9 @@ class ResealAnalysis(SteadyStateAnalysisBase):
 
             dt = start_time - last_measurement['time']
 
-            detect_avg, detection_ratio = self._exponential_decay_avg(
+            detect_avg, detection_ratio = self.exponential_decay_avg(
                 dt, last_measurement['detect_avg'], resistance, self._detection_tau)
-            repair_avg, repair_ratio = self._exponential_decay_avg(
+            repair_avg, repair_ratio = self.exponential_decay_avg(
                 dt, last_measurement['repair_avg'], resistance, self._repair_tau)
 
             is_stretching = detection_ratio > self._stretch_threshold or repair_ratio > self._stretch_threshold
@@ -242,13 +242,9 @@ class ResealState(PatchPipetteState):
 
     def processAtLeastOneTestPulse(self):
         """Wait for at least one test pulse to be processed."""
-        while True:
-            self.checkStop()
-            tps = self.getTestPulses(timeout=0.2)
-            if len(tps) > 0:
-                break
-            self.sleep(0.2)
+        tps = super().processAtLeastOneTestPulse()
         self._lastResistance = self._analysis.process_test_pulses(tps)['resistance'][-1]
+        return tps
 
     def run(self):
         config = self.config

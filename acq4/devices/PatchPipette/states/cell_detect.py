@@ -55,7 +55,7 @@ class CellDetectAnalysis(SteadyStateAnalysisBase):
 
             cell_detected_fast = resistance > self._cell_threshold_fast + self._initial_resistance
             dt = start_time - last_measurement['time']
-            resistance_avg, _ = self._exponential_decay_avg(
+            resistance_avg, _ = self.exponential_decay_avg(
                 dt, last_measurement['resistance_avg'], resistance, dt * self._slow_detection_steps)
             cell_detected_slow = (
                     self._measurment_count >= self._slow_detection_steps and
@@ -326,10 +326,10 @@ class CellDetectState(PatchPipetteState):
         return self.config['obstacleDetection'] and not self.closeEnoughToTargetToDetectCell() and self._analysis.obstacle_detected()
 
     def processAtLeastOneTestPulse(self):
-        while not (tps := self.getTestPulses(timeout=0.2)):
-            self.checkStop()
+        tps = super().processAtLeastOneTestPulse()
         self._analysis.process_test_pulses(tps)
         self._lastTestPulse = tps[-1]
+        return tps
 
     def weTookTooLong(self):
         if self._startTime is None:
