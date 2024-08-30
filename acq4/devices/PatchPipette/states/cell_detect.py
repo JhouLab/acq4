@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from threading import Lock
+
 from typing import Any
 
 import contextlib
@@ -34,6 +36,13 @@ class CellDetectAnalysis(SteadyStateAnalysisBase):
                 pen=pg.mkPen('r'),
                 symbol='x',
                 name=None if names else 'Obstacle Detected',
+            ))
+            plots[''].append(dict(
+                x=analysis["time"],
+                y=plottable_booleans(analysis["cell_detected_fast"] | analysis["cell_detected_slow"]),
+                pen=pg.mkPen('g'),
+                symbol='o',
+                name=None if names else 'Cell Detected',
             ))
             names = True
         return plots
@@ -251,6 +260,7 @@ class CellDetectState(PatchPipetteState):
         self._lastTestPulse = None
         self._startTime = None
         self.direction = self._calc_direction()
+        self._wiggleLock = Lock()
 
     def run(self):
         with contextlib.ExitStack() as stack:
@@ -364,7 +374,7 @@ class CellDetectState(PatchPipetteState):
         return self.config['cellDetectTimeout'] is not None and ptime.time() - self._startTime > self.config['cellDetectTimeout']
 
     def targetCellFound(self) -> str | bool:
-        if self.closeEnoughToTargetToDetectCell():
+        if self.closeEnoughToTargetToDetectCell() and not self._wiggleLock.locked():
             if self._analysis.cell_detected_fast():
                 return 'fast'
             if self._analysis.cell_detected_slow():
@@ -479,16 +489,17 @@ class CellDetectState(PatchPipetteState):
                 self.setState("pre-target wiggle")
                 retract_pos = self.dev.pipetteDevice.globalPosition() - self.direction * self.config['preTargetWiggleStep']
                 _future.waitFor(self.dev.pipetteDevice._moveToGlobal(retract_pos, speed=speed), timeout=None)
-                self.waitFor(
-                    self.dev.pipetteDevice.wiggle(
-                        speed=self.config['preTargetWiggleSpeed'],
-                        radius=self.config['preTargetWiggleRadius'],
-                        repetitions=1,
-                        duration=self.config['preTargetWiggleDuration'],
-                        pipette_direction=self.direction,
-                    ),
-                    timeout=None,
-                )
+                with self._wiggleLock:
+                    self.waitFor(
+                        self.dev.pipetteDevice.wiggle(
+                            speed=self.config['preTargetWiggleSpeed'],
+                            radius=self.config['preTargetWiggleRadius'],
+                            repetitions=1,
+                            duration=self.config['preTargetWiggleDuration'],
+                            pipette_direction=self.direction,
+                        ),
+                        timeout=None,
+                    )
                 step_pos = self.dev.pipetteDevice.globalPosition() + self.direction * self.config['preTargetWiggleStep']
                 _future.waitFor(self.dev.pipetteDevice._moveToGlobal(step_pos, speed=speed), timeout=None)
         _future.waitFor(self.dev.pipetteDevice._moveToGlobal(endpoint, speed=speed), timeout=None)
