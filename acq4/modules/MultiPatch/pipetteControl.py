@@ -397,8 +397,10 @@ class PlotWidget(Qt.QWidget):
             self.plot.plotItem.vb.removeItem(self._analysisLabel)
             self._analysisLabel = None
         if self.mode == 'test pulse':
+            self.plot.clear()
             self._plotTestPulse(tp)
         elif self.mode == 'tp analysis':
+            self.plot.clear()
             tp.plot(self.plot, label=False)
             self._analysisLabel = tp.label_for_plot(self.plot.plotItem)
 
@@ -429,6 +431,7 @@ class PlotWidget(Qt.QWidget):
         self.mode = mode
         with pg.SignalBlock(self.modeCombo.currentIndexChanged, self.modeComboChanged):
             self.modeCombo.setText(mode)
+        self.tpLabel.setVisible(True)
         if mode in ['test pulse', 'tp analysis']:
             self.plot.setLogMode(y=False, x=False)
             self.plot.enableAutoRange(True, True)
@@ -438,29 +441,24 @@ class PlotWidget(Qt.QWidget):
             self.plot.enableAutoRange(True, False)
             self.plot.setYRange(6, 10)
             self.plot.setLabels(left=('Rss', u'Ω'))
-            self.tpLabel.setVisible(True)
         elif mode == 'holding current':
             self.plot.setLogMode(y=False, x=False)
             self.plot.enableAutoRange(True, True)
             self.plot.setLabels(left=('Ihold', u'A'))
-            self.tpLabel.setVisible(True)
         elif mode == 'holding potential':
             self.plot.setLogMode(y=False, x=False)
             self.plot.enableAutoRange(True, True)
             self.plot.setLabels(left=('Vhold', u'V'))
-            self.tpLabel.setVisible(True)
         elif mode == 'time constant':
             self.plot.setLogMode(y=True, x=False)
             self.plot.enableAutoRange(False, True)
             self.plot.setYRange(-5, -2)
             self.plot.setLabels(left=('Tau', u's'))
-            self.tpLabel.setVisible(True)
         elif mode == 'capacitance':
             self.plot.setLogMode(y=False, x=False)
             self.plot.enableAutoRange(False, True)
             self.plot.setYRange(0, 100e-12)
             self.plot.setLabels(left=('Capacitance', u'F'))
-            self.tpLabel.setVisible(True)
 
     def modeComboChanged(self):
         mode = self.modeCombo.currentText()
