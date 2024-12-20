@@ -1,5 +1,6 @@
 
-Using Python 3.11, and venv (because conda or mamba environments didn't allow all packages to be installed without pip)
+Using Python 3.11, PyQt5, and venv virtual environment (also tried conda and mamba, with similar results).
+
 
 Additional packages beyond those listed in requirements that need to be installed for acq4 to work:
 
@@ -11,6 +12,7 @@ pydaqmx (PyDAQmx)
 
 Errors that I have fixed so far:
 
-Upon launching Patch1: acq4/modules/Patch/PatchWindow.py, line 86. self.width() is not a multiple of four, crashes.
+Upon launching Patch1: acq4/modules/Patch/PatchWindow.py, line 86. self.width() is an integer, but after dividing by 4 becomes a floating point, which causes crash.
+Solution was to replace / with integer divide //, and also replace 3. with 3, and 4. with 4
 
-Upon closing Patch1: acq4/modules/Patch/PatchWindow.py, line 163. numpy has no attribute str
+Upon closing Patch1: acq4/modules/Patch/PatchWindow.py, line 163. numpy has no attribute str. Solution was to replace np.str() with str()
