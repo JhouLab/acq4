@@ -1,10 +1,13 @@
 
-Additional packages that need to be pip installed for acq4 to work:
+Using Python 3.11, and venv (because conda or mamba environments didn't allow all packages to be installed without pip)
+
+Additional packages beyond those listed in requirements that need to be installed for acq4 to work:
 
 vispy 0.14.3
-teleprox 1.0
+teleprox 1.0 (requires pip)
 pyzmq 26.2.0
-msgpack 1.1.0
+msgpack 1.1.0 (requires pip)
+pydaqmx (PyDAQmx)
 
 Errors that I have fixed so far:
 

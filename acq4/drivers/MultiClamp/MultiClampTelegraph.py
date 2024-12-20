@@ -70,7 +70,11 @@ class MultiClampTelegraph:
         if desc['model'] == 0:
             return desc['com'] | (desc['dev'] << 8) | (desc['chan'] << 16)
         elif desc['model'] == 1:
-            return (int(desc['sn']) & 0x0FFFFFFF) | (desc['chan'] << 28)
+            sn = desc['sn']
+            if sn == b'Demo' or sn == b'Demo Driver':
+                # Demo commander (e.g. if MultiClamp device is not turned on) will produce string that crashes next line
+                sn = '0'
+            return (int(sn) & 0x0FFFFFFF) | (desc['chan'] << 28)
         else:
             raise Exception('Device type not supported:', desc)
         
