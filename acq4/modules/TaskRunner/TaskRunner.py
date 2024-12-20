@@ -989,7 +989,9 @@ class TaskThread(Thread):
 
     def run(self):
         # If main thread uses a systrace, we probably want it too.
-        sys.settrace(self._systrace)
+        if not sys.gettrace():
+            # Run this only if not in a debugger, e.g. PyCharm
+            sys.settrace(self._systrace)
 
         self.objs = None
         try:

@@ -1,8 +1,9 @@
 
-Using Python 3.11, PyQt5, and venv virtual environment (also tried conda and mamba, with similar results).
+Using Python 3.11 and PyQt5 under Windows 10 and 11.
 
+Have tried conda environment, mamba, and now venv virtual environment. Behavior seems similar on all three.
 
-Additional packages beyond those listed in requirements that need to be installed for acq4 to work:
+GUI does not launch, until the following packages are manually installed. These are not listed in ./tools/requirements/qt5-generic.yml:
 
 vispy 0.14.3
 teleprox 1.0 (requires pip)
@@ -10,9 +11,12 @@ pyzmq 26.2.0
 msgpack 1.1.0 (requires pip)
 pydaqmx (PyDAQmx)
 
-Errors that I have fixed so far:
+After installing, additional errors preventing usage are as follows:
 
-Upon launching Patch1: acq4/modules/Patch/PatchWindow.py, line 86. self.width() is an integer, but after dividing by 4 becomes a floating point, which causes crash.
-Solution was to replace / with integer divide //, and also replace 3. with 3, and 4. with 4
+Upon clicking Patch1 option, GUI crashes with error in acq4/modules/Patch/PatchWindow.py, line 86.
+  Error: .setSizes expects integer argument, but self.width()/4 is floating point, causing crash.
+  Solution: replace / with integer divide //, and remove decimal point after 3. and 4.
 
-Upon closing Patch1: acq4/modules/Patch/PatchWindow.py, line 163. numpy has no attribute str. Solution was to replace np.str() with str()
+Upon closing Patch1 GUI window, received error in acq4/modules/Patch/PatchWindow.py, line 163.
+  Error: numpy has no attribute str (this was deprecated in numpy 1.20, and removed starting with 1.24, whereas I am using 2.1.3)
+  Solution: replace np.str() with str()
