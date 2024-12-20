@@ -83,7 +83,7 @@ class PatchWindow(Qt.QMainWindow):
             ws = Qt.QByteArray.fromPercentEncoding(six.b(uiState['window']))
             self.restoreState(ws)
             
-        self.ui.splitter_2.setSizes([self.width()/4, self.width()*3./4.])
+        self.ui.splitter_2.setSizes([self.width()//4, self.width()*3//4])
         self.ui.splitter.setStretchFactor(0, 30)
         self.ui.splitter.setStretchFactor(1, 10)
 
@@ -160,7 +160,7 @@ class PatchWindow(Qt.QMainWindow):
     def quit(self):
         #print "Stopping patch thread.."
         geom = self.geometry()
-        uiState = {'window': np.str(self.saveState().toPercentEncoding()), 'geometry': [geom.x(), geom.y(), geom.width(), geom.height()]}
+        uiState = {'window': str(self.saveState().toPercentEncoding()), 'geometry': [geom.x(), geom.y(), geom.width(), geom.height()]}
         Manager.getManager().writeConfigFile(uiState, self.stateFile)
         
         self.thread.stop(block=True)

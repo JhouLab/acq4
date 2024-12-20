@@ -1,0 +1,13 @@
+
+Additional packages that need to be pip installed for acq4 to work:
+
+vispy 0.14.3
+teleprox 1.0
+pyzmq 26.2.0
+msgpack 1.1.0
+
+Errors that I have fixed so far:
+
+Upon launching Patch1: acq4/modules/Patch/PatchWindow.py, line 86. self.width() is not a multiple of four, crashes.
+
+Upon closing Patch1: acq4/modules/Patch/PatchWindow.py, line 163. numpy has no attribute str
