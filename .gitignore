@@ -10,6 +10,7 @@ acq4.egg-info
 !config/
 config/*
 !config/example/
+!config/JhouLabConfigs/
 crash.log
 .vscode/
 __pycache__
