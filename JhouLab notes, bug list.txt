@@ -1,22 +1,43 @@
 
-Using Python 3.11 and PyQt5 under Windows 10 and 11.
+Notes regarding installation of acq4.
 
-Have tried conda environment, mamba, and now venv virtual environment. Behavior seems similar on all three.
+Dec 15-20, 2024
 
-GUI does not launch, until the following packages are manually installed. These are not listed in ./tools/requirements/qt5-generic.yml:
+Installed on multiple computers, mostly with Python 3.11 and PyQt5 under Windows 10 or 11.
 
-vispy 0.14.3
-teleprox 1.0 (requires pip)
-pyzmq 26.2.0
-msgpack 1.1.0 (requires pip)
-pydaqmx (PyDAQmx)
+Used conda environment (as per instructions at https://acq4.readthedocs.io/en/latest/userGuide/installation.html).
+Also used mamba environment, and venv virtual environment. Behavior seems similar on all three.
 
-After installing, additional errors preventing usage are as follows:
+Launching GUI triggers immediate errors until the following packages are manually installed:
+(These are not listed in ./tools/requirements/qt5-generic.yml, hence aren't installed during conda env create)
 
-Upon clicking Patch1 option, GUI crashes with error in acq4/modules/Patch/PatchWindow.py, line 86.
-  Error: .setSizes expects integer argument, but self.width()/4 is floating point, causing crash.
-  Solution: replace / with integer divide //, and remove decimal point after 3. and 4.
+vispy (0.14.3)
+teleprox (1.0)
+pyzmq (26.2.0)
+msgpack (1.1.0)
+pydaqmx
 
-Upon closing Patch1 GUI window, received error in acq4/modules/Patch/PatchWindow.py, line 163.
-  Error: numpy has no attribute str (this was deprecated in numpy 1.20, and removed starting with 1.24, whereas I am using 2.1.3)
+After installing, the main GUI launches, but neuron simulator process does not start:
+  Error: unexpected keyword argument 'conda_env' in acq4/devices/MockClamp/MockClamp.py, line 60
+  Solution: call teleprox.ProcessSpawner() without arguments.
+    https://github.com/JhouLab/acq4/commit/5721173479739dbd3b9f73e1d508542639392734
+
+Activating the Patch1 window causes crash:
+  Error: .setSizes expects integer argument, but received float, in acq4/modules/Patch/PatchWindow.py, line 86.
+  Solution: replace "self.width()/4" with "self.width()//4", and remove decimal points after "3." and "4."
+    https://github.com/JhouLab/acq4/commit/a89deede74a95822ccdb71ddcae571627a6de539
+
+Closing Patch1 GUI window causes crash:
+  Error: numpy has no attribute str in acq4/modules/Patch/PatchWindow.py, line 163.
+    (numpy.str was deprecated in numpy 1.20, and removed starting with 1.24, whereas I am using 2.1.3)
   Solution: replace np.str() with str()
+    https://github.com/JhouLab/acq4/commit/a89deede74a95822ccdb71ddcae571627a6de539
+
+One of the example protocols (VC_ramp) causes crash:
+  Error: line 114 in config/example/protocols/VC_ramp specifies mode as 'vc' in lower case, whereas acq4 requires upper case
+  Solution: modified line 343-344 in MockClamp.py to convert mode to upper case
+    https://github.com/JhouLab/acq4/commit/5721173479739dbd3b9f73e1d508542639392734
+
+Crash if MultiClamp commander is running in Demo mode:
+  fixed here: https://github.com/JhouLab/acq4/commit/95dba743d6f466032710b6eccdf87755805b1f99
+

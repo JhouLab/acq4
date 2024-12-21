@@ -1,6 +1,6 @@
 
 from unittest.mock import patch
-import runpy
+import runpy, sys
 
 
 def run_with_args():
