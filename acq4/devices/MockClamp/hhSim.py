@@ -14,6 +14,8 @@ import scipy.integrate
 from acq4.util import Qt
 #import scipy.weave
 
+ENABLE_IH = True
+
 um = 1e-6
 cm = 1e-2
 uF = 1e-6
@@ -119,14 +121,16 @@ def hh(y, t, mode, cmd, dt):
     dn = an * (1.0 - n) - bn * n
     
     # Ih is disabled--very slow.
-    #Hinf = 1.0 / (1.0 + np.exp((Vm + 68.9) / 6.5))
-    #tauF = np.exp((Vm + 158.6)/11.2) / (1.0 + np.exp((Vm + 75.)/5.5))
-    #tauS = np.exp((Vm + 183.6) / 15.24)
-    #df = (Hinf - f) / tauF
-    #ds = (Hinf - s) / tauS
-    df = 0
-    ds = 0
-    
+    if ENABLE_IH:
+        Hinf = 1.0 / (1.0 + np.exp((Vm + 68.9) / 6.5))
+        tauF = np.exp((Vm + 158.6)/11.2) / (1.0 + np.exp((Vm + 75.)/5.5))
+        tauS = np.exp((Vm + 183.6) / 15.24)
+        df = (Hinf - f) / tauF
+        ds = (Hinf - s) / tauS
+    else:
+        df = 0
+        ds = 0
+
     return [dve, dv, dm, dh, dn, df, ds]
 
 
